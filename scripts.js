@@ -1,4 +1,4 @@
-const accessToken = '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';
+// const accessToken = "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";
 
 const apiUrl = 'https://api.github.com';
 
@@ -15,13 +15,14 @@ searchBtn.addEventListener('click', () => {
     const searchTerm = searchInput.value.trim();
     if (searchTerm !== '') {
 
-        searchRepositories(searchTerm);
+        showRepositories(searchTerm);
         var mainInfo = document.querySelector('.main_info');
         while (mainInfo.firstChild) {
             mainInfo.removeChild(mainInfo.firstChild);
         }
         mainInfo.innerHTML = " ";
         ProfileData(searchTerm);
+        searchRepositories(searchTerm);
         searchInput.value = '';
 
     }
@@ -36,35 +37,43 @@ const showLoader = () => {
 };
 
 const hideLoader = () => {
-    
+
     const loaderElement = document.getElementById("loader");
     if (loaderElement) {
         loaderElement.style.display = "none";
     }
 };
+ 
+const searchRepositories = async (ropo) => {
+    const response = await fetch(`${apiUrl}/users/${ropo}/repos`);
+}
 
+const showRepositories = async (query) => {
+    // ProfileData(query);
 
-const searchRepositories = async (query) => {
     try {
         showLoader();
 
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        const response = await fetch(`${apiUrl}/search/repositories?q=${query}`, {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-            },
-        });
+        const response = await fetch(`${apiUrl}/users/${query}/repos`);
+        // const response = await fetch(`${apiUrl}/search/repositories?q=${query}`, {
+        // headers: {
+        //     Authorization: `Bearer ${accessToken}`,
+        // },
+        // });
 
+        console.log("repos: ", response)
         if (!response.ok) {
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
         const data = await response.json();
+        console.log("data of respos: ", data)
 
         // Check if data.items is defined
-        if (data.items) {
-            console.log("searchRepositories data:", data);
+        if (data) {
+            console.log("showRepositories data:", data);
 
             // Clear existing content
             mainContaint.innerHTML = '';
@@ -80,17 +89,17 @@ const searchRepositories = async (query) => {
 
                     mainBoxDiv.innerHTML = `
                     <div class="main_repo">
-                        <h2>${data.items[i].name}</h2>
-                        <p>${data.items[i].description}</p>
-                        <p>Stars: ${data.items[i].stargazers_count}, Forks: ${data.items[i].forks_count}</p>
+                        <h2>${data[i].full_name}</h2>
+                        <p>${data[i].description}</p>
+                        <p>Stars: ${data[i].stargazers_count}, Forks: ${data[i].forks_count}</p>
                         <div class="main_button">
-                                <button>${data.items[i].language}</button>
-                                <button>${data.items[i].language}</button>
-                                <button>${data.items[i].language}</button>
-                                <button>${data.items[i].language}</button>
+                                <button>${data[i].language}</button>
+                                <button>${data[i].language}</button>
+                                <button>${data[i].language}</button>
+                                <button>${data[i].language}</button>
                         </div>
-                    </div>
                 `;
+                   
 
                     mainContaint.appendChild(mainBoxDiv);
 
@@ -128,7 +137,7 @@ const searchRepositories = async (query) => {
                 });
             });
 
-        
+
         } else {
             console.error("No items found in the response.");
         }
@@ -175,7 +184,7 @@ const ShowAllprofiles = async () => {
 
 
                         ProfileData(data[index].login);
-                        searchRepositories(data[index].login);
+                        showRepositories(data[index].login);
 
                         var mainInfo = document.querySelector('.main_info');
                         while (mainInfo.firstChild) {
@@ -232,8 +241,8 @@ const ShowAllprofiles = async () => {
 
 
 const ProfileData = async (user) => {
-   
-  
+
+
     const response = await fetch(`${apiUrl}/users/${user}`);
     const data = await response.json();
     const profile = document.createElement('div');
@@ -250,6 +259,6 @@ const ProfileData = async (user) => {
                                 </div>`;
     mains.prepend(profile);
 
-    
+
 }
 ShowAllprofiles();
